@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+}
+
+.grid {
+    width: 350px;
+    height: 300px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: grey;
+}
+
+.grid div {
+    width: 50px;
+    height: 50px;
+    background-color: blue;
+}
+
+.cell.red-chip {
+    background-color: red;
+}
+
+.cell.yellow-chip {
+    background-color: yellow;
+}
+
+/* style.css */
+.loading {
+    cursor: wait; /* busy cursor feedback */
+}
+
+.loading * {
+    /* disable all mouse events on subElements */
+    pointer-events: none; 
+}
