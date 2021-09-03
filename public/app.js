@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
             playerReady(num)
             if (ready) {
                 playGameMulti(socket)
-                console.log('should say this')
 
             }
         })
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         socket.on('click', id => {
 
-            console.log('players click')
             socket.emit('click-reply', id)
             const square = gridData[id]
             addChipToColumn(square)
@@ -103,10 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const square = gridData[id]
             try {
                 addChipToColumn(square)
-                console.log(square)
             }
             catch (e) {
-                console.log(e)
+                displayFullColMessage()
             }
             playGameMulti(socket)
         })
@@ -129,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let player = `.p${parseInt(num) + 1}`
         document.querySelector(`${player} .ready`).classList.toggle('active')
     }
-    console.log('should say thislol')
 
     function createBoard(width, height) {
         for (let i = 0; i < height; i++) {
@@ -156,12 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.emit('player-ready')
             ready = true
             gridData.forEach(square => {
-                console.log('should say this too')
                 square.addEventListener('click', () => {
-                    console.log('should say click')
                     if (currPlayer == PLAYER_USER && ready && opponentReady) {
-                        console.log('should say click again')
-    
                         socket.emit('click', square.dataset.id)
                     }
                 })
@@ -191,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     addChipToColumn(square)
                 }
                 catch (e) {
-                    console.log(e)
+                    displayFullColMessage()
                 }
             }))
         }
@@ -206,6 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 playGameSingle()
             }
         }
+    }
+    async function displayFullColMessage() {
+        let redo = 'You clicked an invalid column. Please click another!'
+        infoDisplay.innerHTML = redo
+
+        let myPromise = new Promise(function (myResolve) {
+            setTimeout(function () { myResolve(''); }, 2500);
+        });
+        infoDisplay.innerHTML = await myPromise;
     }
 
     let columnChipCounts = new Array(width).fill(0)
@@ -261,6 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function opponentGo() {
         let randomNumber = Math.floor(Math.random() * width * height)
+        
+        console.log(randomNumber)
         let square = gridData[randomNumber]
         let column = square.dataset.col
 
@@ -272,6 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let row = columnChipCounts[column]
         let reverseRowId = height - row
         id = parseInt(column) + width * reverseRowId
+        console.log(gridData[id].firstChild)
+        console.log(gridData[id])
         currHole = gridData[id].firstChild
 
         let color = getCurrPlayerColor()
@@ -326,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         for (let i = 3; i < height; i++) {
-            for (let j = 0; j < width; j++) {
+            for (let j = 0; j < width - 3; j++) {
                 let cell0 = i * width + j
                 let cell1 = (i - 1) * width + (j + 1)
                 let cell2 = (i - 2) * width + (j + 2)
@@ -357,11 +362,16 @@ document.addEventListener('DOMContentLoaded', () => {
             gridData[cell3].firstChild.classList.contains(currPlayerColor)
     }
     function gameOver(gameOverDescription, cell0, cell1, cell2, cell3) {
+        console.log('won')
+
+        console.log(cell0)
+        console.log(cell1)
+        console.log(cell2)
+        console.log(cell3)
         grid.classList.add('gameover')
-        // Weird bug where         grid.classList.add('loading') doenst add loading 
+        // Weird bug where grid.classList.add('loading') doenst add loading 
 
-
-        turnDisplay.innerHTML = "Opponent's Turn"
+        turnDisplay.style.display = 'none';
         infoDisplay.innerHTML = gameOverDescription
         isGameOver = true
 
