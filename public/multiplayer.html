@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Battle Ships</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        let gameMode = 'multiPlayer'
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="connectfour-grid grid">
+        </div>
+    </div>
+
+    <div class="container hidden-info">
+        <div class="setup-buttons" id="setup-buttons">
+            <button id="start" class="btn splash-btn">Start Game</button>
+        </div>
+        <h3 id="turn-player" class="info-text"></h3>
+        <h3 id="info" class="info-text"></h3>
+    </div>
+
+    <div class="container">
+        <div class="grid-display">
+        </div>
+    </div>
+
+</body>
+
+</html>

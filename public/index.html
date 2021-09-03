@@ -4,43 +4,27 @@
 <head>
     <meta charset="utf-8">
     <title>Battle Ships</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="app.js" charset="utf-8"></script>
 </head>
 
 <body>
-
-    <button id="singlePlayerButton">Singleplayer</button>
-    <button id="multiPlayerButton">Multiplayer</button>
-
-    <div class="player p1">
-        Player 1
-        <div class="connected">Connected <span></span></div>
-        <div class="ready">Ready <span></span></div>
-    </div>
-
-    <div class="player p2">
-        Player 2
-        <div class="connected">Connected <span></span></div>
-        <div class="ready">Ready <span></span></div>
-    </div>
-
-    <div class="container">
-        <div class="grid">
+    <div class="splash-container">
+        <h1 class="splash-title">Connect Four</h1>
+        <div>
+            <a href="/singleplayer.html" class="btn splash-btn">Singleplayer</a>
+            <a href="/multiplayer.html" class="btn splash-btn">Multiplayer</a>
         </div>
     </div>
 
-    <div class="hidden-info">
-        <button id="start">Start Game</button>
-        <h3 id="whose-go">Your Go</h3>
-        <h3 id="info"></h3>
-    </div>
 
-    <div class="grid-display">
-        <div id="turn-player"> </div>
-    </div>
-
+    <img src="/images/connectfour-image-yellow.svg" alt="Connect Four Image Yellow" class="splash-connectfour-image image-1" />
+    <img src="/images/connectfour-image-red.svg" alt="Connect Four Image Red" class="splash-connectfour-image image-2" />
+    <img src="/images/connectfour-image-yellow.svg" alt="Connect Four Image Yellow" class="splash-connectfour-image image-3" />
+    <img src="/images/connectfour-image-red.svg" alt="Connect Four Image Red" class="splash-connectfour-image image-4" />
 </body>
 
 </html>

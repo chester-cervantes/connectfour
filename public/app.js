@@ -1,5 +1,3 @@
-// const { info } = require("console")
-
 document.addEventListener('DOMContentLoaded', () => {
     const RED_PLAYER_COLOR = 'red-chip'
     const YELLOW_PLAYER_COLOR = 'yellow-chip'
@@ -15,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.querySelector('#start')
     const turnDisplay = document.querySelector('#turn-player')
     const infoDisplay = document.querySelector('#info')
-    const singlePlayerButton = document.querySelector('#singlePlayerButton')
-    const multiPlayerButton = document.querySelector('#multiPlayerButton')
+    const setupButtons = document.querySelector('#setup-buttons')
 
     const gridData = []
 
@@ -30,18 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currPlayer = PLAYER_USER
 
     // Multiplayer settings
-    let gameMode = "";
     let playerNum = 0;
     let ready = false;
     let opponentReady = false;
 
     // Select Player Mode
-    singlePlayerButton.addEventListener('click', startSinglePlayer)
-    multiPlayerButton.addEventListener('click', startMultiPlayer)
+    if (gameMode === GAME_MODE_SINGLE_PLAYER) {
+        startSinglePlayer()
+    } else {
+        startMultiPlayer()
+    }
 
     function startMultiPlayer() {
-        gameMode = GAME_MODE_MULTI_PLAYER
-
         // Socket io connection
         const socket = io();
 
@@ -60,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Another player has connected or disconnected
         socket.on('player-connection', num => {
-            console.log(`Player number ${num} has connected or disconnected`)
             playerConnectedOrDisconnected(num)
         })
 
@@ -92,14 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         gridData.forEach(square => {
             square.addEventListener('click', () => {
                 if (currPlayer == PLAYER_USER && ready && opponentReady) {
-                    console.log("CLICKED 2")
                     socket.emit('click', square.dataset.id)
                 }
             })
         })
 
         socket.on('click', id => {
-            // opponentGo(id)
             socket.emit('click-reply', id)
             const square = gridData[id]
             addChipToColumn(square)
@@ -125,11 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startSinglePlayer() {
-        gameMode = GAME_MODE_SINGLE_PLAYER
+        startButton.addEventListener('click', () => {
+            setupButtons.style.display = 'none'
+            playGameSingle()
+        })
 
-        startButton.addEventListener('click', playGameSingle)
     }
 
+    function playerReady(num) {
+        let player = `.p${parseInt(num) + 1}`
+        document.querySelector(`${player} .ready span`).classList.toggle('green')
+    }
 
     function createBoard(width, height) {
         for (let i = 0; i < height; i++) {
@@ -139,6 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 square.dataset.id = i * width + j
                 square.dataset.row = i
                 square.dataset.col = j
+                const circle = document.createElement('div');
+                circle.className = 'hole'
+                square.appendChild(circle)
                 gridData.push(square)
                 grid.appendChild(square)
             }
@@ -168,16 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function playerReady(num) {
-        let player = `.p${parseInt(num) + 1}`
-        document.querySelector(`${player} .ready span`).classList.toggle('green')
-    }
-
     function playGameSingle() {
         if (isGameOver) return
-        console.log("******************************************************")
-        console.log("currPlayer")
-        console.log(currPlayer)
         if (currPlayer === PLAYER_USER) {
             turnDisplay.innerHTML = 'Your Turn'
             gridData.forEach(square => square.addEventListener('click', () => {
@@ -215,21 +210,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let row = columnChipCounts[column]
         let reverseRowId = height - row
         id = parseInt(column) + width * reverseRowId
-        currSquare = gridData[id]
+        currHole = gridData[id].firstChild
 
         let color = getCurrPlayerColor()
-        currSquare.classList.add(color)
+        currHole.classList.add(color)
 
-        checkForWins(color, playerId)
-
-        console.log("BEFORE addchipincolumn")
-        console.log(currPlayer)
+        checkForWins(color)
 
         if (currPlayer == PLAYER_USER) currPlayer = PLAYER_OPPONENT
         else currPlayer = PLAYER_USER
 
-        console.log("AFTER addchipincolumn")
-        console.log(currPlayer)
         if (gameMode == GAME_MODE_SINGLE_PLAYER) {
             turnDisplay.innerHTML = 'Your Go'
             document.querySelector('.grid').classList.remove('loading');
@@ -271,26 +261,20 @@ document.addEventListener('DOMContentLoaded', () => {
         let row = columnChipCounts[column]
         let reverseRowId = height - row
         id = parseInt(column) + width * reverseRowId
-        currSquare = gridData[id]
+        currHole = gridData[id].firstChild
 
         let color = getCurrPlayerColor()
-        currSquare.classList.add(color)
+        currHole.classList.add(color)
 
-        checkForWins(color, playerId)
-
-        console.log("BEFORE addchipincolumn")
-        console.log(currPlayer)
+        checkForWins(color)
 
         currPlayer = PLAYER_USER
-
-        console.log("AFTER addchipincolumn")
-        console.log(currPlayer)
         turnDisplay.innerHTML = 'Your Go'
         document.querySelector('.grid').classList.remove('loading');
     }
 
-    function checkForWins(currPlayerColor, id) {
-        let gameOverDescription = "Nothing"
+    function checkForWins(currPlayerColor) {
+        let gameOverDescription = ""
         if (gameMode == GAME_MODE_MULTI_PLAYER) {
             if (currPlayer == PLAYER_USER) {
                 gameOverDescription = "You win!"
@@ -306,54 +290,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameOverDescription = "You lose!!!"
             }
         }
-        // horizontalCheck 
         for (let i = 0; i < height; i++) {
             for (let j = 0; j < width - 3; j++) {
                 let cell0 = i * width + j
                 let cell1 = i * width + j + 1
                 let cell2 = i * width + j + 2
                 let cell3 = i * width + j + 3
-                if (gridData[cell0].classList.contains(currPlayerColor) &&
-                    gridData[cell1].classList.contains(currPlayerColor) &&
-                    gridData[cell2].classList.contains(currPlayerColor) &&
-                    gridData[cell3].classList.contains(currPlayerColor)) {
-                    infoDisplay.innerHTML = gameOverDescription
-                    // TODO handle who wins with playerId
-                    gameOver()
+                if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
                     return
                 }
             }
         }
-        // verticalCheck
         for (let i = 0; i < height - 3; i++) {
             for (let j = 0; j < width; j++) {
                 let cell0 = i * width + j
                 let cell1 = (i + 1) * width + j
                 let cell2 = (i + 2) * width + j
                 let cell3 = (i + 3) * width + j
-                if (gridData[cell0].classList.contains(currPlayerColor) &&
-                    gridData[cell1].classList.contains(currPlayerColor) &&
-                    gridData[cell2].classList.contains(currPlayerColor) &&
-                    gridData[cell3].classList.contains(currPlayerColor)) {
-                    infoDisplay.innerHTML = gameOverDescription
-                    gameOver()
+                if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
                     return
                 }
             }
         }
-        // ascendingDiagonalCheck 
         for (let i = 3; i < height; i++) {
             for (let j = 0; j < width; j++) {
                 let cell0 = i * width + j
                 let cell1 = (i - 1) * width + (j + 1)
                 let cell2 = (i - 2) * width + (j + 2)
                 let cell3 = (i - 3) * width + (j + 3)
-                if (gridData[cell0].classList.contains(currPlayerColor) &&
-                    gridData[cell1].classList.contains(currPlayerColor) &&
-                    gridData[cell2].classList.contains(currPlayerColor) &&
-                    gridData[cell3].classList.contains(currPlayerColor)) {
-                    infoDisplay.innerHTML = gameOverDescription
-                    gameOver()
+                if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
                     return
                 }
             }
@@ -364,20 +332,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 let cell1 = (i - 1) * width + (j - 1)
                 let cell2 = (i - 2) * width + (j - 2)
                 let cell3 = (i - 3) * width + (j - 3)
-                if (gridData[cell0].classList.contains(currPlayerColor) &&
-                    gridData[cell1].classList.contains(currPlayerColor) &&
-                    gridData[cell2].classList.contains(currPlayerColor) &&
-                    gridData[cell3].classList.contains(currPlayerColor)) {
-                    infoDisplay.innerHTML = gameOverDescription
-                    gameOver()
+                if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
                     return
                 }
             }
         }
     }
-
-    function gameOver() {
+    function areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor) {
+        return gridData[cell0].firstChild.classList.contains(currPlayerColor) &&
+            gridData[cell1].firstChild.classList.contains(currPlayerColor) &&
+            gridData[cell2].firstChild.classList.contains(currPlayerColor) &&
+            gridData[cell3].firstChild.classList.contains(currPlayerColor)
+    }
+    function gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor) {
+        infoDisplay.innerHTML = gameOverDescription
         isGameOver = true
-        console.log('GMAE OVER')
+
+        let winningChip = 'winning-chip'
+        gridData[cell0].firstChild.classList.add(winningChip)
+        gridData[cell1].firstChild.classList.add(winningChip)
+        gridData[cell2].firstChild.classList.add(winningChip)
+        gridData[cell3].firstChild.classList.add(winningChip)
     }
 })
