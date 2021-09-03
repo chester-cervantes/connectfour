@@ -63,7 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
         socket.on('opponent-ready', num => {
             opponentReady = true
             playerReady(num)
-            if (ready) playGameMulti(socket)
+            if (ready) {
+                playGameMulti(socket)
+                console.log('should say this')
+
+            }
         })
 
         socket.on('check-players', players => {
@@ -85,15 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
             playGameMulti(socket)
         })
 
-        gridData.forEach(square => {
-            square.addEventListener('click', () => {
-                if (currPlayer == PLAYER_USER && ready && opponentReady) {
-                    socket.emit('click', square.dataset.id)
-                }
-            })
-        })
 
         socket.on('click', id => {
+
+            console.log('players click')
             socket.emit('click-reply', id)
             const square = gridData[id]
             addChipToColumn(square)
@@ -104,16 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const square = gridData[id]
             try {
                 addChipToColumn(square)
+                console.log(square)
             }
             catch (e) {
                 console.log(e)
             }
             playGameMulti(socket)
         })
-
         function playerConnectedOrDisconnected(num) {
             let player = `.p${parseInt(num) + 1}`
-            document.querySelector(`${player} .connected span`).classList.toggle('green')
+            document.querySelector(`${player} .connected`).classList.toggle('active')
             if (parseInt(num) == playerNum) document.querySelector(player).style.fontWeight = 'bold'
         }
     }
@@ -128,8 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function playerReady(num) {
         let player = `.p${parseInt(num) + 1}`
-        document.querySelector(`${player} .ready span`).classList.toggle('green')
+        document.querySelector(`${player} .ready`).classList.toggle('active')
     }
+    console.log('should say thislol')
 
     function createBoard(width, height) {
         for (let i = 0; i < height; i++) {
@@ -150,22 +150,33 @@ document.addEventListener('DOMContentLoaded', () => {
     createBoard(width, height)
 
     function playGameMulti(socket) {
+        setupButtons.style.display = 'none'
         if (isGameOver) return
         if (!ready) {
             socket.emit('player-ready')
             ready = true
+            gridData.forEach(square => {
+                console.log('should say this too')
+                square.addEventListener('click', () => {
+                    console.log('should say click')
+                    if (currPlayer == PLAYER_USER && ready && opponentReady) {
+                        console.log('should say click again')
+    
+                        socket.emit('click', square.dataset.id)
+                    }
+                })
+            })
             playerReady(playerNum)
         }
 
         if (opponentReady) {
             if (currPlayer == PLAYER_USER) {
 
-                document.querySelector('.grid').classList.remove('loading');
+                grid.classList.remove('loading');
                 turnDisplay.innerHTML = 'Your turn'
             }
             if (currPlayer == PLAYER_OPPONENT) {
-
-                document.querySelector('.grid').classList.add('loading');
+                grid.classList.add('loading');
                 turnDisplay.innerHTML = "Opponent's turn"
             }
         }
@@ -187,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (currPlayer === PLAYER_OPPONENT) {
 
             turnDisplay.innerHTML = "Opponent's Turn"
-            document.querySelector('.grid').classList.add('loading');
+            grid.classList.add('loading');
 
             try {
                 setTimeout(opponentGo, 500)
@@ -222,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (gameMode == GAME_MODE_SINGLE_PLAYER) {
             turnDisplay.innerHTML = 'Your Go'
-            document.querySelector('.grid').classList.remove('loading');
+            grid.classList.remove('loading');
             playGameSingle()
 
         }
@@ -270,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currPlayer = PLAYER_USER
         turnDisplay.innerHTML = 'Your Go'
-        document.querySelector('.grid').classList.remove('loading');
+        grid.classList.remove('loading');
     }
 
     function checkForWins(currPlayerColor) {
@@ -297,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let cell2 = i * width + j + 2
                 let cell3 = i * width + j + 3
                 if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
-                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3)
                     return
                 }
             }
@@ -309,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let cell2 = (i + 2) * width + j
                 let cell3 = (i + 3) * width + j
                 if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
-                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3)
                     return
                 }
             }
@@ -321,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let cell2 = (i - 2) * width + (j + 2)
                 let cell3 = (i - 3) * width + (j + 3)
                 if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
-                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3)
                     return
                 }
             }
@@ -333,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let cell2 = (i - 2) * width + (j - 2)
                 let cell3 = (i - 3) * width + (j - 3)
                 if (areBlocksConnected(cell0, cell1, cell2, cell3, currPlayerColor)) {
-                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor)
+                    gameOver(gameOverDescription, cell0, cell1, cell2, cell3)
                     return
                 }
             }
@@ -345,7 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
             gridData[cell2].firstChild.classList.contains(currPlayerColor) &&
             gridData[cell3].firstChild.classList.contains(currPlayerColor)
     }
-    function gameOver(gameOverDescription, cell0, cell1, cell2, cell3, currPlayerColor) {
+    function gameOver(gameOverDescription, cell0, cell1, cell2, cell3) {
+        grid.classList.add('gameover')
+        // Weird bug where         grid.classList.add('loading') doenst add loading 
+
+
+        turnDisplay.innerHTML = "Opponent's Turn"
         infoDisplay.innerHTML = gameOverDescription
         isGameOver = true
 

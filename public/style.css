@@ -195,15 +195,30 @@ body {
     pointer-events: none;
 }
 
-.connected, .ready {
-    font-weight: normal;
+.gameover {
+    pointer-events: none;
+    animation: glow .8s infinite alternate;
 }
 
-.connected span, .ready span {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    background: red;
+@keyframes glow {
+    to {
+        background-color: hsl(221, 100%, 75%);
+    }
+}
+.player {
+    margin: 2vmin;
+}
+
+.connected, .ready {
+    font-weight: normal;
+    opacity: .25;
+    text-decoration: line-through;
+}
+
+.connected.active, 
+.ready.active {
+    opacity: 1;
+    text-decoration: none;
 }
 
 span.green {
