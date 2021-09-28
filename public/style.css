@@ -205,6 +205,7 @@ body {
         background-color: hsl(221, 100%, 75%);
     }
 }
+
 .player {
     margin: 2vmin;
 }
@@ -215,8 +216,7 @@ body {
     text-decoration: line-through;
 }
 
-.connected.active, 
-.ready.active {
+.connected.active, .ready.active {
     opacity: 1;
     text-decoration: none;
 }
@@ -234,4 +234,8 @@ span.green {
 .inactive-link {
     pointer-events: none;
     cursor: default;
- }
+}
+
+.offline-info {
+    padding: 2em;
+}
