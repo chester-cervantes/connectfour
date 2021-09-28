@@ -1,12 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="utf-8">
+    <title>Battle Ships</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Azeret+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="manifest" href="./manifest.json">
 </head>
+
 <body>
-    Connect Four CC is offline
+    <div class="splash-container">
+        <h1 class="splash-title">Connect Four</h1>
+        <div>
+            <a href="/singleplayer.html" class="btn splash-btn">Singleplayer</a>
+            <a href="/multiplayer.html" class="btn splash-btn inactive-link">Multiplayer</a>
+            <span>(You are offline)</span>
+        </div>
+    </div>
+
+
+    <img src="/images/connectfour-image-yellow.svg" alt="Connect Four Image Yellow" class="splash-connectfour-image image-1" />
+    <img src="/images/connectfour-image-red.svg" alt="Connect Four Image Red" class="splash-connectfour-image image-2" />
+    <img src="/images/connectfour-image-yellow.svg" alt="Connect Four Image Yellow" class="splash-connectfour-image image-3" />
+    <img src="/images/connectfour-image-red.svg" alt="Connect Four Image Red" class="splash-connectfour-image image-4" />
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js');
+        }
+    </script>
 </body>
+
 </html>
